@@ -1,0 +1,252 @@
+import random
+from deap import base, creator, tools
+import numpy as np
+import pandas as pd
+from pandas import DataFrame
+from numpy.random import randint
+from scipy.stats.stats import pearsonr
+
+
+
+def arxikopoiisiplith(population):
+    df = pd.read_csv('u.data', delimiter='\t', names=["user_id", "item_id", "rating", "timestamp"])
+    df1 = simpliwrsiKenwn(1)
+    df1a = []
+
+    for i in range(population):
+        n = randomvalues(df1)
+        df1a.append(n)
+
+    return df1a
+
+
+population = 20
+generations = 100
+crossover_rate = 0.6
+mutation_rate = 0.01
+
+def ga():
+
+    print("mpike sto ga")
+    agents = []
+    countdown = 10
+    agents = arxikopoiisiplith(population)
+    print(agents)
+    bestagentingeneral =-1000
+    print("agents:", agents)
+    for generation in range(generations):
+
+        print('Generation: ' + str(generation))
+
+        agents, bestagent = fitness(agents)
+        agents = selection(agents)
+        agents = crossover(agents)
+        agents = mutation(agents, bestagent)
+
+        if bestagentingeneral >= bestagent :
+            countdown = 10
+        else:
+            bestagentingeneral = bestagent
+        countdown = countdown - 1
+
+        if countdown == 0:
+            print("threshold met!")
+            exit(0)
+
+        print('best agent of the genaratiom:', bestagent)
+        print('best agent in general:', bestagentingeneral)
+
+
+def fitness(agents):
+
+    print("ksekinaei to fitness")
+
+    for agent in agents:
+        bestagent = agents[0]
+        agent.fitness = pearsontop10(agent)
+        if agent.fitness >= bestagent.fitness:
+            bestagent = agent
+
+    return agents, bestagent
+
+
+def selection(agents):
+
+    print("ksekinaei to selection")
+
+
+    for agent in agents:
+
+        sumfitness = + agent.fitness
+
+    for agent in agents:
+
+        agent.selection = agent.fitness / sumfitness
+
+    return agents
+
+
+def crossover(agents):
+
+    print("ksekinaei to crossover")
+
+    offspring = []
+    parent1 = random.choice(agents)
+    parent2 = random.choice(agents)
+    p1 = list(parent1)
+    p2 = list(parent2)
+
+    for i in range(population//2):
+
+        if random.uniform(0.0, 1.0) <= crossover_rate:
+
+            split = random.randint(1, len(parent1)-1)
+            child1 = p1[0:split] + p2[split:len(parent1)]
+            child2 = p2[0:split] + p1[split:len(parent1)]
+
+            dfn1 = pd.DataFrame(child1)
+            dfn2 = pd.DataFrame(child2)
+
+            offspring.append(dfn1)
+            offspring.append(dfn2)
+
+    agents.extend(offspring)
+
+    return agents
+
+
+def mutation(agents, bestagent):
+
+    print("ksekinaei to mutation")
+    mutated = []
+
+    for agent in agents:
+
+        if random.uniform(0.0, 1.0) <= mutation_rate:
+
+            if agent != bestagent:
+
+                randomc = random.choice(agents)
+                r1 = list(randomc)
+                agent = list(agent)
+                split = random.randint(1, len(randomc) - 1)
+
+                agent[random.randint(1, 5)] = random.randint(min(agent), max(agent) - 1)
+
+                mutated1 = pd.DataFrame(agent)
+
+                mutated.append(mutated1)
+
+        agents.extend(mutated)
+
+    return agents
+
+
+def simpliwrsiKenwn(r):
+
+    dft = df.loc[df['user_id'] == r]
+    dft = dft[["item_id", "rating"]]
+    dft['can change?'] = 0
+
+    for i in range (1, 1683):
+        dfItemId = dft['item_id']
+        exists = i not in dfItemId.values
+        if exists:
+            new_row = {'item_id': i, 'rating': 0, 'can change?': 1}
+            dft = dft.append(new_row, ignore_index=True)
+
+    dft = dft.sort_values(by=['item_id'], ignore_index=True)
+
+    return dft
+
+
+def randomvalues(dft):
+
+    for i in range(1, 1863):
+        dft['rating'][(dft['item_id'] == i) & (dft['can change?'] == 1)] = random.randint(1, 5)
+
+    dft = dft.sort_values(by=['item_id'], ignore_index=True)
+    dft = dft['rating']
+
+    return dft
+
+
+def mypearson(dft, r):
+
+    dft2 = simpliwrsiKenwn(r)
+    dft2 = dft2['rating']
+    m = pearsonr(dft, dft2)[0]
+    return m
+
+def pearsontop10(dft):
+
+    n = mypearson(dft, 916)
+    n = n + mypearson(dft, 738)
+    n = n + mypearson(dft, 864)
+    n = n + mypearson(dft, 457)
+    n = n + mypearson(dft, 268)
+    n = n + mypearson(dft, 823)
+    n = n + mypearson(dft, 92)
+    n = n + mypearson(dft, 514)
+    n = n + mypearson(dft, 435)
+    n = n + mypearson(dft, 521)
+
+    return n
+
+
+
+
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! pearson top 10 geitonia
+
+# c = pearsonr(dfp1, dfp5)[0]
+# print("To correlation einai: ", c)
+# dfa = []
+# ca = []
+# usert = []
+# for i in range(2, 944):
+#     n = simpliwrsiKenwn(i)
+#     n = n['rating']
+#
+#     print("to dianisma tou xristi " , i, "einai: ")
+#     print(n)
+#     # n = df.loc[i, :]
+#     dfa.append(n)
+#     # print(dfa)
+#
+#
+# for i in range(0, 942):
+#     m = pearsonr(dfp1, dfa[i])[0]
+#     ca.append(m)
+#     #print("To correlation tou [1] me ton", [i+2]," einai: ", (ca[i]))
+# for i in range(2, 944):
+#     usert.append(i)
+# print("to ca einai:" ,ca)
+# ca = np.array(ca)
+# usert = np.array(usert)
+# print(ca.size)
+# print(usert.size)
+#
+# numpy_data = np.array([[usert], [ca]])
+# d = {'user': usert, 'correlation': ca}
+# d1 = pd.DataFrame(data=d)
+# print(d1)
+# ds = d1.sort_values('correlation', ascending=False)
+# print(ds)
+# # d1 = pd.DataFrame(data=numpy_data, index=["user id", "correlation"])
+# da = []
+# ds10 = ds.head(10)
+# print(ds10)
+# da = ds10.iloc[:, 0]
+# print(da)
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! pearson top top 10 geitonia
+
+
+
+if __name__ == '__main__':
+
+    df = pd.read_csv('u.data', delimiter='\t', names=["user_id", "item_id", "rating", "timestamp"])
+    df1 = df.loc[df['user_id'] == 1]
+    print("eimaste sti main, prin to ga")
+    ga()
